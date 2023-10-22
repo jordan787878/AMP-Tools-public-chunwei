@@ -64,15 +64,16 @@ void Exe3(){
     std::vector<double> link_lengths_3 = {1.0, 1.0};
     Eigen::Vector2d base_location_3 = {0.0, 0.0};
     MyLinkManipulator2D mylink3(base_location_3, link_lengths_3);
+    // ManipulatorState2Link state_3 = Eigen::Vector2d({})
     // ManipulatorState state_3{0*3.14/180, 30*3.14/180};
     // Visualizer::makeFigure(Exe3_World, mylink3, state_3);
     // Visualizer::showFigures();
     // // CSpaceObstacle
-    // MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
-    //                   mylink3, Exe3_World);
-    // // Visualize CSpace 
-    // Visualizer::makeFigure(grid);
-    // Visualizer::showFigures();
+    MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
+                      mylink3, Exe3_World);
+    // Visualize CSpace 
+    Visualizer::makeFigure(grid);
+    Visualizer::showFigures();
 }
 
 
@@ -85,7 +86,7 @@ int main(int argc, char** argv) {
 
     //Exe2();
 
-    //Exe3();
+    Exe3();
 
     // Grade method
     //MyGridCSpace2DConstructor constructor;
