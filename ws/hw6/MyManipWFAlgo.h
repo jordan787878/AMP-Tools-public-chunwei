@@ -4,11 +4,16 @@
 
 #include "MyGridCSpace2DConstructor.h"
 
+#include <cmath>
+
 class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
     public:
+        MyLinkManipulator2D robot;
+        amp::Path2D cpath;
+
         // Default ctor
-        MyManipWFAlgo()
-            : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyGridCSpace2DConstructor>()) {}
+        MyManipWFAlgo(MyLinkManipulator2D& link)
+            : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyGridCSpace2DConstructor>()) {robot = link;}
 
         // You can have custom ctor params for all of these classes
         // MyManipWFAlgo(const std::string& beep) 
@@ -26,13 +31,20 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
         {
             std::cout << "planInCSpace\n";
 
+            // init and goal in CSpace
+            //Eigen::Vector2d c_init = grid_cspace.robot. mylink.getConfigurationFromIK(end_effector_i);
+
+            // std::make_shared<MyGridCSpace> *ptr = grid_cspace;
+            Eigen::Vector2d c_init = robot.getConfigurationFromIK(q_init);
+            Eigen::Vector2d c_goal = robot.getConfigurationFromIK(q_goal);
+
+
             amp::Path2D path;
-            // (debugging)
-            path.waypoints.push_back(Eigen::Vector2d{3.1415926, 0.0});
-            //path.waypoints.push_back(q_init);
-            //std::cout << "add to path: " << q_init[0] << " " << q_init[1] << "\n";
             
-            // do something here
+            // add the init wspace
+            path.waypoints.push_back(q_init);
+            // cpath.waypoints.push_back(Eigen::Vector2d{3.141592,0.0});
+            cpath.waypoints.push_back(c_init);
 
             // init the wavefront 2D array
             std::pair<std::size_t, std::size_t> dimensions = grid_cspace.size();
@@ -51,17 +63,16 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             }
 
             // [debug cout for Cspace]
-            std::cout << "(debug) print CSpace\n";
-            for (int j=0; j < cols; j++){
-                for (int i=0; i < rows; i++){
-                    int index_i = i;//rows-i-1;
-                    int index_j = rows - j -1;
-                    std::cout << grid_cspace(index_i, index_j) << " ";
-                }
-                std::cout<< "\n";
-            }
-
-            std:: cout << "\n";
+            // std::cout << "(debug) print CSpace\n";
+            // for (int j=0; j < cols; j++){
+            //     for (int i=0; i < rows; i++){
+            //         int index_i = i;//rows-i-1;
+            //         int index_j = rows - j -1;
+            //         std::cout << grid_cspace(index_i, index_j) << " ";
+            //     }
+            //     std::cout<< "\n";
+            // }
+            // std:: cout << "\n";
 
             // set obstacle to 1
             for(int i=0; i<rows; i++){
@@ -73,9 +84,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             }
 
             // get (i,j) of q_start
-            std::pair<std::size_t, std::size_t> ij_init = grid_cspace.getCellFromPoint(q_init[0], q_init[1]);
+            std::pair<std::size_t, std::size_t> ij_init = grid_cspace.getCellFromPoint(c_init[0], c_init[1]);
             std::cout << ij_init.first << " " << ij_init.second << "\n";
-            std::pair<std::size_t, std::size_t> ij_goal = grid_cspace.getCellFromPoint(q_goal[0], q_goal[1]);
+            std::pair<std::size_t, std::size_t> ij_goal = grid_cspace.getCellFromPoint(c_goal[0], c_goal[1]);
             std::cout << ij_goal.first << " " << ij_goal.second << "\n";
 
             // set q_goal to 2
@@ -84,7 +95,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             // update until ij_init is not zero
             int check_value = 2;
             while(true){
-                std::cout << "check value: " << check_value << "\n";
+                //std::cout << "check value: " << check_value << "\n";
                 if(waveFrontArray[ij_init.first][ij_init.second] > 0){
                     break;
                 }
@@ -133,15 +144,15 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             }
 
             // [debug cout for waveFrontArray]
-            std::cout << "(debug) print waveFrontArray\n";
-            for (int j=0; j < cols; j++){
-                for (int i=0; i < rows; i++){
-                    int index_i = i;//rows-i-1;
-                    int index_j = rows - j -1;
-                    std::cout << std::setw(2) << std::setfill('0') << waveFrontArray[index_i][index_j] << " ";
-                }
-                std::cout<< "\n";
-            }
+            // std::cout << "(debug) print waveFrontArray\n";
+            // for (int j=0; j < cols; j++){
+            //     for (int i=0; i < rows; i++){
+            //         int index_i = i;//rows-i-1;
+            //         int index_j = rows - j -1;
+            //         std::cout << std::setw(2) << std::setfill('0') << waveFrontArray[index_i][index_j] << " ";
+            //     }
+            //     std::cout<< "\n";
+            // }
 
             // generate path from the waveFrontArray
             int waveFrontValue = waveFrontArray[ij_init.first][ij_init.second];
@@ -152,6 +163,8 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                     if(waveFrontValue == 2){
                         std::cout << "reach goal\n";
                         path.waypoints.push_back(q_goal);
+                        cpath.waypoints.push_back(c_goal);
+                        //cpath.waypoints.push_back(Eigen::Vector2d{0.0,0.0});
                     }
                     else{
                         std::cout << "cannot reach goal\n";
@@ -196,13 +209,13 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             }
 
             // Visualization before returning the path
-            amp::Visualizer::makeFigure(grid_cspace, path);
+            amp::Visualizer::makeFigure(grid_cspace, cpath);
             amp::Visualizer::showFigures();
 
             std::cout << "planInCSpace done\n";
             // (debugiing)
-            path.waypoints.push_back(Eigen::Vector2d{0.0,0.0});
-            return path;
+            // path.waypoints.push_back(Eigen::Vector2d{0.0,0.0});
+            return cpath;
         }
 
         Eigen::Vector2d getPointFromCell(const amp::GridCSpace2D& grid_cspace, const int i, const int j){
@@ -241,8 +254,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 findnextstep = true;
                 // push state
                 Eigen::Vector2d q = getPointFromCell(grid_cspace, index_x, index_y);
-                std::cout << "add to path: " << q[0] << " " << q[1] << "\n";
-                path.waypoints.push_back(q);
+                //std::cout << "add to path: " << q[0] << " " << q[1] << "\n";
+                cpath.waypoints.push_back(q);
+                Eigen::Vector2d end_effector_loc = robot.getJointLocation(q, 2);
+                path.waypoints.push_back(end_effector_loc);
             }
         }
 };

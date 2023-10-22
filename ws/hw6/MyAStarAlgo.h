@@ -26,10 +26,11 @@ class MyAStarAlgo : public amp::AStar {
             std::list<Element> open_set;
             std::list<Element> close_set;
             // Push the first node to the openset
+            
             // A-star
-            open_set.push_back({problem.init_node, heuristic(problem.init_node)});
+            // open_set.push_back({problem.init_node, heuristic(problem.init_node)});
             // Dijkstar's
-            //open_set.push_back({problem.init_node, 0.0});
+            open_set.push_back({problem.init_node, 0.0});
 
             int cal_steps = 0;
 
@@ -110,10 +111,11 @@ class MyAStarAlgo : public amp::AStar {
                 std::vector<double> priority_neighbors;
                 int i = 0;
                 for (uint32_t neighbor : neighbors){
+                    
                     // A-star
-                    double p = current.h_value - heuristic(current.n) + edge_cost[i] + heuristic(neighbor);
+                    // double p = current.h_value - heuristic(current.n) + edge_cost[i] + heuristic(neighbor);
                     // Dijkstar's
-                    //double p = current.h_value - 0*heuristic(current.n) + edge_cost[i] + 0*heuristic(neighbor);
+                    double p = current.h_value - 0*heuristic(current.n) + edge_cost[i] + 0*heuristic(neighbor);
 
                     priority_neighbors.push_back(p);
                     //std::cout << p << " ";

@@ -24,44 +24,48 @@ void Exe1(){
 
 void Exe2(){
     // Define CSpace (S x S)
-    int Ncells = 30;
+    int Ncells = 100;
     double x0_min = 0; double x0_max = 2*3.141;
     double x1_min = 0; double x1_max = 2*3.141;
     
     // WorkSpace (getEx3Workspace <1,2,3>)
-    amp::Environment2D wspace = amp::HW4::getEx3Workspace3();
+    amp::Problem2D problem = amp::HW6::getHW4Problem1();
 
     std::vector<double> link_lengths = {1.0, 1.0};
     Eigen::Vector2d base_location = {0.0, 0.0};
     MyLinkManipulator2D mylink(base_location, link_lengths);
 
     // Initial Configuration
-    Eigen::Vector2d end_effector_i = {-2.0, 0.0};
-    amp::ManipulatorState state_i = mylink.getConfigurationFromIK(end_effector_i);
+    // Eigen::Vector2d end_effector_i = {-2.0, 0.0};
+    //amp::ManipulatorState state_i = mylink.getConfigurationFromIK(end_effector_i);
     // Final Configuration
-    Eigen::Vector2d end_effector_f = {2.0, 0.0};
-    amp::ManipulatorState state_f = mylink.getConfigurationFromIK(end_effector_f);
+    // Eigen::Vector2d end_effector_f = {2.0, 0.0};
+    // amp::ManipulatorState state_f = mylink.getConfigurationFromIK(end_effector_f);
     
     // Visualization
-    amp::ManipulatorTrajectory2Link state_traj;
-    state_traj.waypoints.push_back({state_i[0], state_i[1]});
-    state_traj.waypoints.push_back({state_f[0], state_f[1]});
-    amp::Problem2D problem;
-    problem.q_init = Eigen::Vector2d{state_i[0], state_i[1]};
-    problem.q_goal = Eigen::Vector2d{state_f[0], state_f[1]};
-    problem.obstacles = wspace.obstacles;
-    problem.x_max = wspace.x_max; problem.x_min = wspace.x_min;
-    problem.y_max = wspace.y_max; problem.y_min = wspace.y_min;
+    // amp::Problem2D problem;
+    // problem.q_init = end_eff
+    // problem.q_goal = Eigen::Vector2d{state_f[0], state_f[1]};
+    // problem.obstacles = wspace.obstacles;
+    // problem.x_max = wspace.x_max; problem.x_min = wspace.x_min;
+    // problem.y_max = wspace.y_max; problem.y_min = wspace.y_min;
     //amp::Visualizer::makeFigure(problem, mylink, state_traj);
     //amp::Visualizer::showFigures();
+
+    // Create environment object
+    amp::Environment2D env;
+    env.obstacles = problem.obstacles;
+    env.x_max = problem.x_max; env.x_min = problem.x_min;
+    env.y_max = problem.y_max; env.y_min = problem.y_min;
     
     // CSpaceObstacle
     MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
-                      mylink, wspace);
+                      mylink, env);
     
     // plan in Cspace
-    MyManipWFAlgo wfalgo;
+    MyManipWFAlgo wfalgo(mylink);
     amp::Path2D path = wfalgo.planInCSpace(problem.q_init, problem.q_goal, grid);
+    std::cout << "(DEBIG):\n";
 
     // Visualize Workspace
     amp::Visualizer::makeFigure(problem, mylink, path);
@@ -77,8 +81,13 @@ void Exe3(){
     // Init Aglo
     MyAStarAlgo algo;
     MyAStarAlgo::GraphSearchResult result = algo.search(graphproblem, heuristic);
+    std::cout << "Path: ";
+    for(auto it = result.node_path.begin(); it != result.node_path.end(); ++it){
+        std::cout << *it << " ";
+    }
+    std::cout << "\n";
     amp::HW6::checkGraphSearchResult(result, graphproblem);
-    amp::HW6::generateAndCheck(algo);
+    // amp::HW6::generateAndCheck(algo);
 }
 
 int main(int argc, char** argv) {
@@ -91,8 +100,13 @@ int main(int argc, char** argv) {
     Exe3();
 
     // HW6 grading
-    // amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, 
-    // std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
+    //amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, 
+    //std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
+    // MyPointWFAlgo point_wf_algo;
+    // MyManipWFAlgo manipulator_wf_algo;
+    // MyAStarAlgo astar_algo;
+    // amp::HW6::grade(point_wf_algo, manipulator_wf_algo, astar_algo, "chko1829@colorado.edu", argc, argv);
+
     std::cout << "run complete";
     return 0;
 }

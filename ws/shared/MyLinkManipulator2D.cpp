@@ -99,15 +99,15 @@ amp::ManipulatorState2Link MyLinkManipulator2D::inverseKinematics(const Eigen::V
         // discretize the configuraiton space
         double t1 = 0;
         double t2 = 0;
-        double tol = 0.003;
-        for(int i =0; i<1440; i++){
-            t1 = (double)i*0.25*3.1415926/180;
-            for(int j=0; j<1440; j++){
-                t2= (double)j*0.25*3.14/180;
+        double tol = 0.00001;
+        for(int i =0; i<14400; i++){
+            t1 = (double)i* 0.025 *M_PI/180;
+            for(int j=0; j<14400; j++){
+                t2= (double)j* 0.025 *M_PI/180;
                 double rx = l1*cos(t1)+l2*cos(t2)-relativePos[0];
                 double ry = l1*sin(t1)+l2*sin(t2)-relativePos[1];
                 if( abs(rx) < tol && abs(ry) < tol){
-                    std::cout << t1 << " " << t2 << "\n";
+                    std::cout << t1 << " " << t2-t1<< "\n";
                     jointAngles[0] = t1;
                     jointAngles[1] = t2-t1;
                     return jointAngles;

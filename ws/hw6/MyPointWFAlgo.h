@@ -5,7 +5,7 @@
 class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override {
-            double dx = 0.25;
+            double dx = 0.5;
             int Ncells_x = static_cast<int>((environment.x_max - environment.x_min)/dx);
             int Ncells_y = static_cast<int>((environment.y_max - environment.y_min)/dx);
             return std::make_unique<MyGridCSpace>(Ncells_x, Ncells_y, environment.x_min, environment.x_max, environment.y_min, environment.y_max, environment);
@@ -18,8 +18,9 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
 
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override {
-            
+            double dx = 0.5;
             std::cout << "planInCSpace\n";
+            double pathlength = 0;
 
             amp::Path2D path;
             path.waypoints.push_back(q_init);
@@ -74,7 +75,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
             // update until ij_init is not zero
             int check_value = 2;
             while(true){
-                std::cout << "check value: " << check_value << "\n";
+                //std::cout << "check value: " << check_value << "\n";
                 if(waveFrontArray[ij_init.first][ij_init.second] > 0){
                     break;
                 }
@@ -123,15 +124,15 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
             }
 
             // [debug cout for waveFrontArray]
-            std::cout << "(debug) print waveFrontArray\n";
-            for (int j=0; j < cols; j++){
-                for (int i=0; i < rows; i++){
-                    int index_i = i;//rows-i-1;
-                    int index_j = rows - j -1;
-                    std::cout << std::setw(2) << std::setfill('0') << waveFrontArray[index_i][index_j] << " ";
-                }
-                std::cout<< "\n";
-            }
+            // std::cout << "(debug) print waveFrontArray\n";
+            // for (int j=0; j < cols; j++){
+            //     for (int i=0; i < rows; i++){
+            //         int index_i = i;//rows-i-1;
+            //         int index_j = rows - j -1;
+            //         std::cout << std::setw(2) << std::setfill('0') << waveFrontArray[index_i][index_j] << " ";
+            //     }
+            //     std::cout<< "\n";
+            // }
             
             
             // generate path from the waveFrontArray
@@ -143,6 +144,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
                     if(waveFrontValue == 2){
                         std::cout << "reach goal\n";
                         path.waypoints.push_back(q_goal);
+                        pathlength = pathlength + dx;
                     }
                     else{
                         std::cout << "cannot reach goal\n";
@@ -184,6 +186,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
                            grid_cspace, waveFrontArray, 
                            index_x, index_y, waveFrontValue, findnextstep,
                            path);
+                pathlength = pathlength + dx;
             }
 
             // Visualization before returning the path
@@ -191,6 +194,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
             amp::Visualizer::showFigures();
 
             std::cout << "planInCSpace done\n";
+            std::cout << "Path Length: " << pathlength << "\n";
 
             return path;
         }
@@ -234,7 +238,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
                 findnextstep = true;
                 // push state
                 Eigen::Vector2d q = getPointFromCell(index_x, index_y, grid_cspace);
-                std::cout << "add to path: " << q[0] << " " << q[1] << "\n";
+                //std::cout << "add to path: " << q[0] << " " << q[1] << "\n";
                 path.waypoints.push_back(q);
             }
         }
