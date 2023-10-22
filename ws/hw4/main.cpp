@@ -38,18 +38,18 @@ void Exe2(){
     Eigen::Vector2d base_location = {0.0, 0.0};
     MyLinkManipulator2D mylink1(base_location, link_lengths);
     //mylink1.print();
-    ManipulatorState state1 = {3.14/6, 3.14/3, 7*3.14/4};
-    Visualizer::makeFigure(mylink1, state1);
-    Visualizer::showFigures();
-    //Prob(2)
-    link_lengths = {1.0, 0.5, 1.0};
-    base_location = {0.0, 0.0};
-    MyLinkManipulator2D mylink2(base_location, link_lengths);
-    //mylink2.print();
-    Eigen::Vector2d end_effector_location = {2.0, 0.0};
-    ManipulatorState state2 = mylink2.getConfigurationFromIK(end_effector_location);
-    Visualizer::makeFigure(mylink2, state2);
-    Visualizer::showFigures();
+    // ManipulatorState state1 = {3.14/6, 3.14/3, 7*3.14/4};
+    // Visualizer::makeFigure(mylink1, state1);
+    // Visualizer::showFigures();
+    // //Prob(2)
+    // link_lengths = {1.0, 0.5, 1.0};
+    // base_location = {0.0, 0.0};
+    // MyLinkManipulator2D mylink2(base_location, link_lengths);
+    // //mylink2.print();
+    // Eigen::Vector2d end_effector_location = {2.0, 0.0};
+    // ManipulatorState state2 = mylink2.getConfigurationFromIK(end_effector_location);
+    // Visualizer::makeFigure(mylink2, state2);
+    // Visualizer::showFigures();
 }
 
 void Exe3(){
@@ -64,15 +64,15 @@ void Exe3(){
     std::vector<double> link_lengths_3 = {1.0, 1.0};
     Eigen::Vector2d base_location_3 = {0.0, 0.0};
     MyLinkManipulator2D mylink3(base_location_3, link_lengths_3);
-    ManipulatorState state_3 = {0*3.14/180, 30*3.14/180};
-    Visualizer::makeFigure(Exe3_World, mylink3, state_3);
-    Visualizer::showFigures();
-    // CSpaceObstacle
-    MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
-                      mylink3, Exe3_World);
-    // Visualize CSpace 
-    Visualizer::makeFigure(grid);
-    Visualizer::showFigures();
+    // ManipulatorState state_3{0*3.14/180, 30*3.14/180};
+    // Visualizer::makeFigure(Exe3_World, mylink3, state_3);
+    // Visualizer::showFigures();
+    // // CSpaceObstacle
+    // MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
+    //                   mylink3, Exe3_World);
+    // // Visualize CSpace 
+    // Visualizer::makeFigure(grid);
+    // Visualizer::showFigures();
 }
 
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 
     //Exe2();
 
-    Exe3();
+    //Exe3();
 
     // Grade method
     //MyGridCSpace2DConstructor constructor;

@@ -10,6 +10,7 @@ class MyGDSalgo : public amp::GDAlgorithm{
     public:
         amp::Path2D plan(const amp::Problem2D& problem) override;
         double potential(const Eigen::Vector2d, const Eigen::Vector2d, const amp::Problem2D&);
+        
         double xi; // scaling factor of the att. potential
         double eta; // scaling factor of the rep. potentail
         double d_star_goal; // distance criteria for the att. potential
