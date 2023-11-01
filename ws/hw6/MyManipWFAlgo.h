@@ -23,7 +23,32 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
         // This is just to get grade to work, you DO NOT need to override this method
         virtual amp::ManipulatorTrajectory2Link plan(const amp::LinkManipulator2D& link_manipulator_agent, const amp::Problem2D& problem) override 
         {
-            return amp::ManipulatorTrajectory2Link();
+            std::cout << "MyManipWFAlgo: call plan ..... \n";
+
+            std::vector<double> link_lengths = {1.0, 1.0};
+            Eigen::Vector2d base_location = {0.0, 0.0};
+            MyLinkManipulator2D mylink(base_location, link_lengths);
+
+            // Create environment object
+            amp::Environment2D env;
+            env.obstacles = problem.obstacles;
+            env.x_max = problem.x_max; env.x_min = problem.x_min;
+            env.y_max = problem.y_max; env.y_min = problem.y_min;
+    
+            // CSpaceObstacle
+            int Ncells = 100;
+            double x0_min = 0; double x0_max = 2*3.141;
+            double x1_min = 0; double x1_max = 2*3.141;
+            MyGridCSpace grid(Ncells, Ncells, x0_min, x0_max, x1_min, x1_max,
+                              mylink, env);
+    
+            // plan in Cspace
+            //MyManipWFAlgo wfalgo(mylink);
+            amp::Path2D path = planInCSpace(problem.q_init, problem.q_goal, grid);
+
+            return path;
+
+            //return amp::ManipulatorTrajectory2Link();
         }
         
         // You need to implement here
@@ -35,11 +60,22 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             //Eigen::Vector2d c_init = grid_cspace.robot. mylink.getConfigurationFromIK(end_effector_i);
 
             // std::make_shared<MyGridCSpace> *ptr = grid_cspace;
+            std::cout << "q_init: " << q_init[0] << " " << q_init[1] << "\n";
+            std::cout << "q_goal: " << q_goal[0] << " " << q_goal[1] << "\n";
             Eigen::Vector2d c_init = robot.getConfigurationFromIK(q_init);
             Eigen::Vector2d c_goal = robot.getConfigurationFromIK(q_goal);
 
 
             amp::Path2D path;
+
+            // error handling
+            if(c_init[0] == -999.0){
+                return path;
+            }
+            if(c_goal[0] == -999.0){
+                return path;
+            }
+
             
             // add the init wspace
             path.waypoints.push_back(q_init);
@@ -85,9 +121,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
 
             // get (i,j) of q_start
             std::pair<std::size_t, std::size_t> ij_init = grid_cspace.getCellFromPoint(c_init[0], c_init[1]);
-            std::cout << ij_init.first << " " << ij_init.second << "\n";
+            std::cout << "(i,j) init: " << ij_init.first << " " << ij_init.second << "\n";
             std::pair<std::size_t, std::size_t> ij_goal = grid_cspace.getCellFromPoint(c_goal[0], c_goal[1]);
-            std::cout << ij_goal.first << " " << ij_goal.second << "\n";
+            std::cout << "(i,j) goal: " << ij_goal.first << " " << ij_goal.second << "\n";
 
             // set q_goal to 2
             waveFrontArray[ij_goal.first][ij_goal.second] = 2;
@@ -95,10 +131,15 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             // update until ij_init is not zero
             int check_value = 2;
             while(true){
+
                 //std::cout << "check value: " << check_value << "\n";
+                if(check_value > 100000){
+                    break;
+                }
                 if(waveFrontArray[ij_init.first][ij_init.second] > 0){
                     break;
                 }
+
                 for(int i=0; i<rows; i++){
                     for(int j =0; j<cols; j++){
                         if(waveFrontArray[i][j] == check_value){
@@ -158,7 +199,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             int waveFrontValue = waveFrontArray[ij_init.first][ij_init.second];
             int index_x = ij_init.first;
             int index_y = ij_init.second;
+            int iteration = 0;
             while(true){
+                iteration = iteration + 1;
+                //std::cout << "iter: " << iteration << " \n";
                 if(waveFrontValue <= 2){
                     if(waveFrontValue == 2){
                         std::cout << "reach goal\n";
@@ -169,6 +213,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                     else{
                         std::cout << "cannot reach goal\n";
                     }
+                    break;
+                }
+                if(iteration > 1000){
+                    std::cout << "exceed max. iteraion\n";
                     break;
                 }
 
@@ -256,8 +304,8 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 Eigen::Vector2d q = getPointFromCell(grid_cspace, index_x, index_y);
                 //std::cout << "add to path: " << q[0] << " " << q[1] << "\n";
                 cpath.waypoints.push_back(q);
-                Eigen::Vector2d end_effector_loc = robot.getJointLocation(q, 2);
-                path.waypoints.push_back(end_effector_loc);
+                //Eigen::Vector2d end_effector_loc = robot.getJointLocation(q, 2);
+                //path.waypoints.push_back(end_effector_loc);
             }
         }
 };

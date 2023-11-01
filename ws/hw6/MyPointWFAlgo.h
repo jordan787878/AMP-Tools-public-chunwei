@@ -5,7 +5,7 @@
 class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override {
-            double dx = 0.5;
+            double dx = 0.1;
             int Ncells_x = static_cast<int>((environment.x_max - environment.x_min)/dx);
             int Ncells_y = static_cast<int>((environment.y_max - environment.y_min)/dx);
             return std::make_unique<MyGridCSpace>(Ncells_x, Ncells_y, environment.x_min, environment.x_max, environment.y_min, environment.y_max, environment);
@@ -13,13 +13,22 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
 
         // This is just to get grade to work, you DO NOT need to override this method
         virtual amp::Path2D plan(const amp::Problem2D& problem) override {
-            return amp::Path2D();
+            std::cout << "MyPointWFAlgo: call plan ..... \n";
+
+            amp::Environment2D env;
+            env.x_max = problem.x_max; env.x_min = problem.x_min; env.y_max = problem.y_max; env.y_min = problem.y_min;
+            env.obstacles = problem.obstacles;
+
+            std::unique_ptr<amp::GridCSpace2D> gridSpace = constructDiscretizedWorkspace(env);
+            amp::Path2D path = planInCSpace(problem.q_init, problem.q_goal, *gridSpace);
+            return path;
+            //return amp::Path2D();
         }
 
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override {
-            double dx = 0.5;
-            std::cout << "planInCSpace\n";
+            double dx = 0.1;
+            std::cout << "!!!! planInCSpace !!!!\n";
             double pathlength = 0;
 
             amp::Path2D path;
@@ -51,8 +60,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
             //     }
             //     std::cout<< "\n";
             // }
-
-            std:: cout << "\n";
+            // std:: cout << "\n";
 
             // set obstacle to 1
             for(int i=0; i<rows; i++){
@@ -119,7 +127,6 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
                 // std::cin >> xxx;
                 // iterate to next value
                 check_value = check_value + 1;
-
 
             }
 
@@ -190,8 +197,8 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
             }
 
             // Visualization before returning the path
-            amp::Visualizer::makeFigure(grid_cspace, path);
-            amp::Visualizer::showFigures();
+            // amp::Visualizer::makeFigure(grid_cspace, path);
+            // amp::Visualizer::showFigures();
 
             std::cout << "planInCSpace done\n";
             std::cout << "Path Length: " << pathlength << "\n";
@@ -216,11 +223,13 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
 
         void assignValue(int ni, int nj, const int rows, const int cols, int check_value, int** waveFrontArray){
             //std::cout << "n top: " << ni << " " << nj << "\n";
-            if(ni < 0){ni = ni+rows;} if(ni >= rows){ni = 0;}
-            if(nj < 0){nj = nj+cols;} if(nj >= cols){nj = 0;}
-            if(waveFrontArray[ni][nj] == 0){
-                waveFrontArray[ni][nj] = check_value + 1;
-                //std::cout << "set: " << ni << " " << nj << "\n";
+            // if(ni < 0){ni = ni+rows;} if(ni >= rows){ni = 0;}
+            // if(nj < 0){nj = nj+cols;} if(nj >= cols){nj = 0;}
+            if(ni >= 0 &&  ni < rows && nj >= 0 && nj < cols){
+                if(waveFrontArray[ni][nj] == 0){
+                    waveFrontArray[ni][nj] = check_value + 1;
+                    //std::cout << "set: " << ni << " " << nj << "\n";
+                }
             }
         }
 

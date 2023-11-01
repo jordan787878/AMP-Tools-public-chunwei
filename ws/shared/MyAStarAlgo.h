@@ -48,10 +48,10 @@ class MyAStarAlgo : public amp::AStar {
 
                 if(current.n == problem.goal_node){
                     // find and return the path
-                    std::cout << "!!!!! Find a Path !!!!!\n";
+                    //std::cout << "!!!!! Find a Path !!!!!\n";
                     // print_openset(close_set);
-                    std::cout << "init node: " << problem.init_node << "\n";
-                    std::cout << "goal node: " << problem.goal_node << "\n"; 
+                    //std::cout << "init node: " << problem.init_node << "\n";
+                    //std::cout << "goal node: " << problem.goal_node << "\n"; 
 
                     // Reconstruct a Path
                     // target node
@@ -59,15 +59,15 @@ class MyAStarAlgo : public amp::AStar {
                     double pathcost = current.h_value;         
                     result.path_cost = pathcost;
 
-                    std::cout << "Reconstructing the path...\n";
+                    //std::cout << "Reconstructing the path...\n";
                     result.node_path.push_front(current.n);
                     // std::cout << "node: " << current.n << " ";
 
                     while(current.n != problem.init_node){
 
-                        std::cout << "n : " << current.n << 
-                                     " h:  " << current.h_value << 
-                                     " source: " << current.n_source << "\n";
+                        // std::cout << "n : " << current.n << 
+                        //              " h:  " << current.h_value << 
+                        //              " source: " << current.n_source << "\n";
 
                         // loop over close set
                         for (auto it = close_set.begin(); it != close_set.end(); ++it) {
@@ -88,39 +88,44 @@ class MyAStarAlgo : public amp::AStar {
                         // std::cin >> xxx;
                     }
                     
-                    std::cout << "total calculation steps: " << cal_steps << "\n";
+                    //std::cout << "total calculation steps: " << cal_steps << "\n";
                     return result;
                 }
 
                 // (debug)
-                // std::cout << "open set before adding neighbors: ";
+                // std::cout << "[debug] open set before adding neighbors: ";
                 //print_openset(open_set);
 
                 // get neighbor nodes (children for the directed graph)
                 std::vector<uint32_t> neighbors = problem.graph->children(current.n);
-                // (debug)
+                if(neighbors.size() == 0){
+                    //std::cout << "CANNOT FIND PATH... (1st node in open set has empty children)\n";
+                    return result;
+                }
+                //(debug)
                 // std::cout << "neighbors nodes: ";
                 // for(int i=0; i<neighbors.size(); i++){
                 //     std::cout << neighbors[i] << " ";
                 // }
-                // std::cout << "\n";
+                //std::cout << "\n";
 
                 // Calculate element information for neighbors
-                //std::cout << "with priority: ";
                 const std::vector<double>& edge_cost = problem.graph->outgoingEdges(current.n);
                 std::vector<double> priority_neighbors;
                 int i = 0;
+                // std::cout << "[debug] before calculating priority\n";
                 for (uint32_t neighbor : neighbors){
                     
                     // A-star
                     // double p = current.h_value - heuristic(current.n) + edge_cost[i] + heuristic(neighbor);
                     // Dijkstar's
-                    double p = current.h_value - 0*heuristic(current.n) + edge_cost[i] + 0*heuristic(neighbor);
+                    double p = current.h_value + edge_cost[i];
 
                     priority_neighbors.push_back(p);
                     //std::cout << p << " ";
                     i = i+1;
                 }
+                // std::cout << "[debug] after calculating priority\n";
                 //std::cout << "\n";
                 
                 // Add neighbors to open set
@@ -171,6 +176,7 @@ class MyAStarAlgo : public amp::AStar {
                 }
 
                 // (debug)
+                // std::cout << "openset after adding N: ";
                 // print_openset(open_set);
                 
 
@@ -195,13 +201,13 @@ class MyAStarAlgo : public amp::AStar {
                 // std::cin >> kkk;
              }
 
-            std::cout << "CANNOT FIND PATH... (open set is empty)\n";
+            //std::cout << "CANNOT FIND PATH... (open set is empty)\n";
             return result;
         }
 
         // debug function
         void print_openset(std::list<Element> set){
-            std::cout << "open set after adding neighbors:\n";
+            //std::cout << "open set after adding neighbors:\n";
             for (auto it = set.begin(); it != set.end(); ++it) {
                 Element e = *it;
                 std::cout << "node: " << e.n << " , h: " << e.h_value << " , n source: " << e.n_source << "\n";

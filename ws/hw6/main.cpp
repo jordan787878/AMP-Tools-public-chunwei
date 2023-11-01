@@ -24,33 +24,16 @@ void Exe1(){
 
 void Exe2(){
     // Define CSpace (S x S)
-    int Ncells = 100;
+    int Ncells = 200;
     double x0_min = 0; double x0_max = 2*3.141;
     double x1_min = 0; double x1_max = 2*3.141;
     
     // WorkSpace (getEx3Workspace <1,2,3>)
-    amp::Problem2D problem = amp::HW6::getHW4Problem1();
+    amp::Problem2D problem = amp::HW6::getHW4Problem3();
 
     std::vector<double> link_lengths = {1.0, 1.0};
     Eigen::Vector2d base_location = {0.0, 0.0};
     MyLinkManipulator2D mylink(base_location, link_lengths);
-
-    // Initial Configuration
-    // Eigen::Vector2d end_effector_i = {-2.0, 0.0};
-    //amp::ManipulatorState state_i = mylink.getConfigurationFromIK(end_effector_i);
-    // Final Configuration
-    // Eigen::Vector2d end_effector_f = {2.0, 0.0};
-    // amp::ManipulatorState state_f = mylink.getConfigurationFromIK(end_effector_f);
-    
-    // Visualization
-    // amp::Problem2D problem;
-    // problem.q_init = end_eff
-    // problem.q_goal = Eigen::Vector2d{state_f[0], state_f[1]};
-    // problem.obstacles = wspace.obstacles;
-    // problem.x_max = wspace.x_max; problem.x_min = wspace.x_min;
-    // problem.y_max = wspace.y_max; problem.y_min = wspace.y_min;
-    //amp::Visualizer::makeFigure(problem, mylink, state_traj);
-    //amp::Visualizer::showFigures();
 
     // Create environment object
     amp::Environment2D env;
@@ -68,12 +51,13 @@ void Exe2(){
     std::cout << "(DEBIG):\n";
 
     // Visualize Workspace
-    amp::Visualizer::makeFigure(problem, mylink, path);
-    amp::Visualizer::showFigures();
-    amp::HW6::checkLinkManipulatorPlan(path, mylink, problem);
+    // amp::Visualizer::makeFigure(problem, mylink, path);
+    // amp::Visualizer::showFigures();
+    // amp::HW6::checkLinkManipulatorPlan(path, mylink, problem);
 }
 
 void Exe3(){
+    
     // Set up
     amp::LookupSearchHeuristic heuristic = amp::HW6::getEx3Heuristic();
     amp::ShortestPathProblem graphproblem = amp::HW6::getEx3SPP();
@@ -94,16 +78,26 @@ int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
     //Exe1();
+    //MyPointWFAlgo algo;
+    //amp::HW6::generateAndCheck(algo);
 
     //Exe2();
+    // std::vector<double> link_lengths = {1.0, 1.0};
+    // Eigen::Vector2d base_location = {0.0, 0.0};
+    // MyLinkManipulator2D mylink(base_location, link_lengths);
+    // MyManipWFAlgo wfalgo(mylink);
+    // amp::HW6::generateAndCheck(wfalgo);
     
     Exe3();
 
     // HW6 grading
-    //amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, 
-    //std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
     // MyPointWFAlgo point_wf_algo;
-    // MyManipWFAlgo manipulator_wf_algo;
+
+    // std::vector<double> link_lengths = {1.0, 1.0};
+    // Eigen::Vector2d base_location = {0.0, 0.0};
+    // MyLinkManipulator2D mylink(base_location, link_lengths);
+    // MyManipWFAlgo manipulator_wf_algo(mylink);
+
     // MyAStarAlgo astar_algo;
     // amp::HW6::grade(point_wf_algo, manipulator_wf_algo, astar_algo, "chko1829@colorado.edu", argc, argv);
 

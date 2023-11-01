@@ -1,5 +1,9 @@
 #include "MyLinkManipulator2D.h"
 
+#include "MyFunctions.h"
+
+#include <cmath>
+
 //namespace amp {
 
 MyLinkManipulator2D::MyLinkManipulator2D() : amp::LinkManipulator2D() {}
@@ -88,32 +92,65 @@ amp::ManipulatorState2Link MyLinkManipulator2D::inverseKinematics(const Eigen::V
     // Calculate the distance from the base to the end effector
     double d = relativePos.norm();
 
-    amp::ManipulatorState2Link jointAngles;
+    amp::ManipulatorState2Link jointAngles = Eigen::Vector2d({0.0, 0.0});
     if(nLinks() == 2){
         std::cout << "2 Links IK\n";
         // Check if the end effector is within reach
         if (d > l1 + l2|| d < fabs(l1 - l2)) {
             std::cerr << "The end effector is out of reach." << std::endl;
+            jointAngles = Eigen::Vector2d({-999.0, -999.0});
             return jointAngles;
         }
-        // discretize the configuraiton space
-        double t1 = 0;
-        double t2 = 0;
-        double tol = 0.00001;
-        for(int i =0; i<14400; i++){
-            t1 = (double)i* 0.025 *M_PI/180;
-            for(int j=0; j<14400; j++){
-                t2= (double)j* 0.025 *M_PI/180;
-                double rx = l1*cos(t1)+l2*cos(t2)-relativePos[0];
-                double ry = l1*sin(t1)+l2*sin(t2)-relativePos[1];
-                if( abs(rx) < tol && abs(ry) < tol){
-                    std::cout << t1 << " " << t2-t1<< "\n";
-                    jointAngles[0] = t1;
-                    jointAngles[1] = t2-t1;
-                    return jointAngles;
-                }
+
+        // double x0 = relativePos[0]; // Replace with your values
+        // double y0 = relativePos[1]; // Replace with your values
+
+        // jointAngles = solveEquations(l1, l2, x0, y0);
+
+        double x = relativePos[0];
+        double y = relativePos[1];
+        double z = (x*x + y*y - l1*l1 - l2*l2) / (2*l1*l2);
+        std::cout << " (debug) z: " << z << "\n";
+
+        if(z > 1 || z < -1){
+            return jointAngles;
+        }
+        double t2 = acos(z);
+        std::cout << " (debug) t2: " << t2 << "\n";
+
+        double tol = 0.000001;
+        double t1 = 0.0;
+        int refine_factor = 10000;
+        for(int i =0; i<360*refine_factor; i++){
+            t1 = (double)i* 1.0 *M_PI/180.0/(double)refine_factor;
+            double rx = l1*cos(t1) + l2*cos(t1+t2) - relativePos[0];
+            double ry = l1*sin(t1) + l2*sin(t1+t2) - relativePos[1];
+            if( abs(rx) < tol && abs(ry) < tol){
+                jointAngles[0] = t1;
+                jointAngles[1] = t2;
+                std::cout << "t1: " << t1 << " , t2: " << t2 << "\n";
             }
         }
+        
+        // // discretize the configuraiton space
+        // double t1 = 0.0;
+        // double t2 = 0.0;
+        // double tol = 0.00001;
+        // int refine_factor = 50;
+        // for(int i =0; i<360*refine_factor; i++){
+        //     t1 = (double)i* 1.0 *M_PI/180.0/(double)refine_factor;
+        //     for(int j=0; j< 360*refine_factor; j++){
+        //         t2= (double)j* 1.0 *M_PI/180.0/(double)refine_factor;
+        //         double rx = l1*cos(t1)+l2*cos(t2)-relativePos[0];
+        //         double ry = l1*sin(t1)+l2*sin(t2)-relativePos[1];
+        //         if( abs(rx) < tol && abs(ry) < tol){
+        //             std::cout << t1 << " " << t2-t1<< "\n";
+        //             jointAngles[0] = t1;
+        //             jointAngles[1] = t2-t1;
+        //             return jointAngles;
+        //         }
+        //     }
+        // }
         return jointAngles;
     }
 
