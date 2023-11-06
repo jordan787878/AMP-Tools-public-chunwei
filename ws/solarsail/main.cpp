@@ -25,12 +25,12 @@ int main(int argc, char** argv) {
     const std::string valid2_filename = config["valid2_filename"].as<std::string>();
 
     // Uncontrolled simulation
-    ode.init_params(config_files[config_index-1]);
-    ode.validate(valid1_filename, false, "");
+    // ode.init_params(config_files[config_index-1]);
+    // ode.validate(valid1_filename, false, "");
 
-    // Controlled simulation
-    ode.init_params(config_files[config_index-1]);
-    ode.validate(valid2_filename, true, u_filename);
+    // // Controlled simulation
+    // ode.init_params(config_files[config_index-1]);
+    // ode.validate(valid2_filename, true, u_filename);
 
     MyRRT rrtalgo;
     rrtalgo.problem_setup(config_files[config_index-1]);
