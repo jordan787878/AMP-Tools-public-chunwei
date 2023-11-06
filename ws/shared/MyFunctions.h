@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include<Eigen/Dense>
 #include "AMPCore.h"
 
@@ -20,4 +21,7 @@ bool isPointInConvexPolygon(const Eigen::Vector2d& point, const std::vector<Eige
 double crossProduct(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& p3);
 bool doLineSegmentsIntersect(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q1, const Eigen::Vector2d& q2);
 bool onSegment(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q);
+
+void log_vector(Eigen::VectorXd v);
+void write_x_traj(std::vector<Eigen::VectorXd>& data, std::string filename);
 

@@ -134,3 +134,37 @@ bool isEdgeCollision(const Eigen::Vector2d p1, const Eigen::Vector2d p2, const s
     }
             return false;
 }
+
+void log_vector(Eigen::VectorXd v){
+    std::cout << "vector: ";
+    for(int i = 0; i < v.size(); i ++){
+        std::cout << v[i] << " ";
+        }
+    // std::cout << "\n";
+}
+
+void write_x_traj(std::vector<Eigen::VectorXd>& data, std::string filename){
+    // Open a CSV file for writing
+    std::ofstream outputFile(filename);
+
+    if (!outputFile.is_open()) {
+        std::cerr << "Failed to open the output file." << std::endl;
+    }
+    else{
+        std::cout << "Write data... ";
+        // Write data to the CSV file
+        for (const Eigen::VectorXd& vec : data) {
+            for (int i = 0; i < vec.size(); i++) {
+                outputFile << vec(i);
+                if (i < vec.size() - 1) {
+                    outputFile << ",";
+                }
+            }
+            outputFile << "\n";
+        }
+
+        // Close the file
+        outputFile.close();
+        std::cout << "Save file to: " << filename << "\n";
+    }
+}

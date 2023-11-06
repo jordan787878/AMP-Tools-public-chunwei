@@ -1,0 +1,10 @@
+digraph MyGraph {
+    // Define nodes
+    node_1 [label="Node 1"];
+    node_2 [label="Node 2"];
+    // Add more nodes...
+
+    // Define edges
+    node_1 -> node_2;
+    // Add more edges...
+}

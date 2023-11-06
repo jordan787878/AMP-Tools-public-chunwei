@@ -4,6 +4,7 @@
 #include "Eigen/Dense"
 #include "MyFunctions.h"
 
+
 class MyRRT2D: public amp::GoalBiasRRT2D{
     public:
         std::vector<int> Tree;

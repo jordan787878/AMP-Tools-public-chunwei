@@ -194,7 +194,7 @@ int main(int argc, char** argv) {
 
     // For Grading
     MyPRM2D prmalgo;
-    prmalgo.init(1000, 2.0);
+    prmalgo.init(500, 2.0);
     MyRRT2D rrtalgo;
     amp::HW7::grade(prmalgo, rrtalgo, "chko1829@colorado.edu", argc, argv);
 

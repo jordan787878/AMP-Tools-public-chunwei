@@ -1,30 +1,32 @@
+#include <cstdlib> 
 #include "AMPCore.h"
 #include "hw/HW2.h"
 
 int main() {
-    amp::RNG::seed(amp::RNG::randiUnbounded());
+    system("/opt/homebrew/Cellar/graphviz/9.0.0/bin/dot -Tpng /Users/chko1829/src/ASEN5254_Motion_Planning/AMP-Tools-public-chunwei/ws/graph_example/my_graph.dot -o /Users/chko1829/src/ASEN5254_Motion_Planning/AMP-Tools-public-chunwei/ws/graph_example/my_graph.png");
+    // amp::RNG::seed(amp::RNG::randiUnbounded());
 
-    // Let's connect some nodes with some edges
-    amp::Graph<double> graph;
-    graph.connect(0, 1, 1.0);
-    graph.connect(1, 2, 1.0);
-    graph.connect(1, 0, 1.0);
-    graph.connect(1, 6, 1.0);
-    graph.connect(6, 2, 1.0);
-    graph.connect(6, 1, 1.0);
+    // // Let's connect some nodes with some edges
+    // amp::Graph<double> graph;
+    // graph.connect(0, 1, 1.0);
+    // graph.connect(1, 2, 1.0);
+    // graph.connect(1, 0, 1.0);
+    // graph.connect(1, 6, 1.0);
+    // graph.connect(6, 2, 1.0);
+    // graph.connect(6, 1, 1.0);
 
-    // Make sure the graph is correct by printing it
-    graph.print();
+    // // Make sure the graph is correct by printing it
+    // graph.print();
 
-    // Try mapping node to coordinate and visualization
-    std::map<amp::Node, Eigen::Vector2d> node_to_coord;
-    node_to_coord[0] = Eigen::Vector2d(0.0, 0.0);
-    node_to_coord[1] = Eigen::Vector2d(0.0, 1.0);
-    node_to_coord[2] = Eigen::Vector2d(1.0, 0.0);
-    node_to_coord[6] = Eigen::Vector2d(1.0, 1.0);
-    amp::Problem2D prob = amp::HW2::getWorkspace1();
-    amp::Visualizer::makeFigure(prob, graph, node_to_coord);
-    amp::Visualizer::showFigures();
+    // // Try mapping node to coordinate and visualization
+    // std::map<amp::Node, Eigen::Vector2d> node_to_coord;
+    // node_to_coord[0] = Eigen::Vector2d(0.0, 0.0);
+    // node_to_coord[1] = Eigen::Vector2d(0.0, 1.0);
+    // node_to_coord[2] = Eigen::Vector2d(1.0, 0.0);
+    // node_to_coord[6] = Eigen::Vector2d(1.0, 1.0);
+    // amp::Problem2D prob = amp::HW2::getWorkspace1();
+    // amp::Visualizer::makeFigure(prob, graph, node_to_coord);
+    // amp::Visualizer::showFigures();
 
     return 0;
 
