@@ -19,6 +19,8 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
         double epsilon;
         bool isSuccess;
         double treesize;
+        double max_exec_time = 10.0;
+        double margin = 0.2;
 
         int whileloopcount;
         int max_whileloops;
@@ -31,8 +33,6 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
             epsilon = 0.25;
             isSuccess = false;
             treesize = 0;
-            whileloopcount = 0;
-            max_whileloops = 10;
 
             Tree.clear();
             graph.clear();
@@ -51,11 +51,8 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
 
             amp::MultiAgentPath2D result;
 
-            //[TEST]
-            // std::cout << isCircleRobotCollision(Eigen::Vector2d(4.92895, 7.24022), 0.5, problem.obstacles) << "\n";
-            // return result;
+            // Meta C-space: [x1, y1, x2, y2, ... xn, yn]
 
-            // [x1, y1, x2, y2, ... xn, yn]
             // Set sampling bound
             Eigen::VectorXd q_min = get_meta_q_min(problem, 0);
             Eigen::VectorXd q_max = get_meta_q_min(problem, 1);
@@ -74,24 +71,23 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
 
             // RRT loop
             int index_node = 1;
-            while(true){
-                if(Tree.size() >= N_iter){
-                    std::cout << "EXCEED MAX Nodes\n\n"; // Fail
-                    break;
-                }
-                // Just for debugging
-                if(Tree.size()%1000 == 0){
-                    std::cout << Tree.size() << " ";
-                }
-                if(whileloopcount > max_whileloops){
-                    std::cout << "EXCEED MAX WhileLoops\n\n";
-                    break;
-                }
-                whileloopcount = whileloopcount + 1;
-                if( whileloopcount% 1000 == 0){
-                    std::cout << whileloopcount << " Tree Size: " << Tree.size() << "\n";
-                }
 
+             // Timer
+            auto start = std::chrono::high_resolution_clock::now();
+
+            while(true){
+                // Check the elapsed time
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = end - start;
+                if (elapsed.count() > max_exec_time) {
+                    std::cout << "Function exceeded {max_exec_time} second. Breaking the loop." << std::endl;
+                    break;
+                }
+                // Exceed maximum nodes
+                if(Tree.size() >= N_iter){
+                    std::cout << "Exceed {N_iter} Nodes\n\n";
+                    break;
+                }
 
                 // Sample Q_rand
                 Eigen::VectorXd q_rand = get_q_sample(problem, q_min, q_max, q_goal);
@@ -100,10 +96,7 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
                 // Extend
                 int node_near = search_node_near(q_rand);
                 Eigen::VectorXd q_near = node_to_coord[Tree[node_near]];
-                // std::cout << "q_near: "; log_vector(q_near);
                 Eigen::VectorXd q_new = get_q_new(q_near, q_rand);
-                // std::cout << "q_new: "; log_vector(q_new);
-                // std::cout << "\n";
 
                 // Connect [TEMP]
                 if(!isRobotsCollision(problem, q_new) && !isRobotsEdgeCollision(problem, q_near, q_new)){
@@ -126,10 +119,6 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
                 // Node path
                 std::cout << "Success\n";
                 std::vector<int> node_path = reconstruct_node_path();
-                // log_node_path(node_path);
-                // for(int i=0; i < node_path.size(); i++){
-                //     log_vector(node_to_coord[Tree[node_path[i]]]);
-                // }
                 
                 // Coordinate Path
                 for(int i=0; i<problem.numAgents(); i++){
@@ -203,7 +192,7 @@ class MyCentMAgentRRT : public amp::CentralizedMultiAgentRRT{
                         Eigen::Vector2d qj = {p[dimension*j], p[dimension*j+1]};
                         double rj = radius_list[j];
                         Eigen::Vector2d r_diff = qi - qj;
-                        if(r_diff.norm() < (ri + rj)){
+                        if(r_diff.norm() < (ri + rj) + margin){
                             return true;
                         }
                     }

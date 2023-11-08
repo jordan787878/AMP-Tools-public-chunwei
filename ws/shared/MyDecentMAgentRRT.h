@@ -3,6 +3,7 @@
 #include "AMPCore.h"
 #include "hw/HW8.h"
 #include "MyFunctions.h"
+#include <chrono>
 
 class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
     public:
@@ -14,12 +15,12 @@ class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
         double step_size = 0.5;
         int N_iter = 7500;
         double tol_goal = 0.25;
-        int whileloopcount;
-        int max_whileloops;
+        double max_exec_time = 10.0;
 
         amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem){
 
-            max_whileloops = 1000000;
+            std::cout << " === Num Agents: " << problem.numAgents() << " === \n";
+
             amp::MultiAgentPath2D result;
 
             result.valid = true;
@@ -32,13 +33,14 @@ class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
                     result.valid = false;
                 }
             }
+
+            // Debugging
             if(result.valid){
                 std::cout << "Success\n";
             }
             else{
                 std::cout << "Fail\n";
             }
-
             return result;
         }
 
@@ -61,7 +63,6 @@ class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
             graph.clear();
             node_to_coord.clear();
             isSuccess = false;
-            whileloopcount = 0;
 
             amp::Path2D path = return_rrt_path(subproblem, result);
 
@@ -69,6 +70,9 @@ class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
         }
 
         amp::Path2D return_rrt_path(const amp::Problem2D& problem, amp::MultiAgentPath2D& result){
+
+            // Timer
+            auto start = std::chrono::high_resolution_clock::now();
 
             // init
             amp::Path2D path;
@@ -80,21 +84,19 @@ class MyDecentMAgentRRT : public amp::DecentralizedMultiAgentRRT{
             // Sampling a Q rand
             int index_nodes = 1; // this is also the "time"
             while(true){
-                if(Tree.size() >= N_iter){
-                    std::cout << "... EXCEED MAX Nodes\n";
+
+                // Check the elapsed time
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = end - start;
+
+                if (elapsed.count() > max_exec_time) {
+                    std::cout << "... Function exceeded {max_exec_time} second. Breaking the loop." << std::endl;
                     break;
                 }
-                if(whileloopcount > max_whileloops){
-                    std::cout << "... EXCEED MAX Whileloops\n";
-                    break; 
-                }
-                whileloopcount = whileloopcount + 1;
-                if(whileloopcount % 10000 == 0){
-                    if(Tree.size() < 10){
-                        break;
-                    }
-                    std::cout << whileloopcount << " ";
-                    std::cout << Tree.size() << "\n";
+
+                if(Tree.size() >= N_iter){
+                    std::cout << "... exceed {N_iter} nodes\n";
+                    break;
                 }
 
                 // Sample Q_rand
