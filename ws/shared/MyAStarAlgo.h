@@ -1,3 +1,5 @@
+// This is kind of a mess, need to clean it up...
+
 #include "AMPCore.h"
 
 
@@ -36,6 +38,8 @@ class MyAStarAlgo : public amp::AStar {
 
             // While loop until the open set is not empty
             while(!open_set.empty()){
+                // std::cout << cal_steps << "\n";
+
                 cal_steps = cal_steps + 1;
                 // Get the top node from the open set
                 current = open_set.front();
@@ -44,7 +48,7 @@ class MyAStarAlgo : public amp::AStar {
                 // Add it to the close set
                 close_set.push_back(current);
                 // (debug)
-                // std::cout << "current node: " << current.n << "\n";
+                // std::cout << "(debug) current node: " << current.n << "\n";
 
                 if(current.n == problem.goal_node){
                     // find and return the path
@@ -93,15 +97,18 @@ class MyAStarAlgo : public amp::AStar {
                 }
 
                 // (debug)
-                // std::cout << "[debug] open set before adding neighbors: ";
-                //print_openset(open_set);
+                // std::cout << "[debug] open set before adding neighbors:\n";
+                // print_openset(open_set);
 
                 // get neighbor nodes (children for the directed graph)
                 std::vector<uint32_t> neighbors = problem.graph->children(current.n);
-                if(neighbors.size() == 0){
-                    //std::cout << "CANNOT FIND PATH... (1st node in open set has empty children)\n";
-                    return result;
-                }
+                // NOTE: comment out this line for pure graph search
+                // NOTE: if it is used for PRM, then use this line.
+                // if(neighbors.size() == 0){
+                //     //std::cout << "CANNOT FIND PATH... (1st node in open set has empty children)\n";
+                //     return result;
+                // }
+
                 //(debug)
                 // std::cout << "neighbors nodes: ";
                 // for(int i=0; i<neighbors.size(); i++){
@@ -176,7 +183,7 @@ class MyAStarAlgo : public amp::AStar {
                 }
 
                 // (debug)
-                // std::cout << "openset after adding N: ";
+                // std::cout << "(debug) openset after adding N:\n";
                 // print_openset(open_set);
                 
 

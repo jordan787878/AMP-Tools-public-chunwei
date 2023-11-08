@@ -186,17 +186,17 @@ int main(int argc, char** argv) {
 
     //Problem1();
 
-    //BenchMarkPRM();
+    BenchMarkPRM();
 
     //Problem2();
 
     //BenchMarkRRT();
 
     // For Grading
-    MyPRM2D prmalgo;
-    prmalgo.init(500, 2.0);
-    MyRRT2D rrtalgo;
-    amp::HW7::grade(prmalgo, rrtalgo, "chko1829@colorado.edu", argc, argv);
+    // MyPRM2D prmalgo;
+    // prmalgo.init(500, 2.0);
+    // MyRRT2D rrtalgo;
+    // amp::HW7::grade(prmalgo, rrtalgo, "chko1829@colorado.edu", argc, argv);
 
     std::cout << "[RUN COMPLETE]\n";
     return 0;

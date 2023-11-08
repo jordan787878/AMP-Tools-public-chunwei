@@ -44,6 +44,69 @@ double cal_distance(Eigen::Vector2d p1, Eigen::Vector2d p2){
     return r;
 }
 
+///
+
+bool isCollisionWithConvexPolygon(const Eigen::Vector2d& circleCenter, double circleRadius, const std::vector<Eigen::Vector2d>& polygon) {
+    // Margin
+    double margin = 0.2;
+    
+    // Check if the circle's center is inside the polygon
+    for (const Eigen::Vector2d& vertex : polygon) {
+        Eigen::Vector2d difference = circleCenter - vertex;
+        double distanceSquared = difference.squaredNorm();
+        if (distanceSquared < (circleRadius * circleRadius) + margin) {
+            return true; // Circle center is inside the polygon, collision detected
+        }
+    }
+
+    // Check for collisions with the edges of the convex polygon
+    size_t numVertices = polygon.size();
+    for (size_t i = 0; i < numVertices; ++i) {
+        const Eigen::Vector2d& vertex1 = polygon[i];
+        const Eigen::Vector2d& vertex2 = polygon[(i + 1) % numVertices];
+        
+        // Calculate the vector from the circle center to the line segment
+        Eigen::Vector2d segment = vertex2 - vertex1;
+        Eigen::Vector2d circleToSegment = circleCenter - vertex1;
+
+        // Project the circle center onto the line segment
+        double t = circleToSegment.dot(segment) / segment.squaredNorm();
+        t = std::max(0.0, std::min(1.0, t)); // Clamp to the segment
+
+        Eigen::Vector2d closestPoint = vertex1 + t * segment;
+
+        // Check if the distance between the closest point on the line segment and the circle center is less than the circle radius
+        double distanceSquared = (circleCenter - closestPoint).squaredNorm();
+        if (distanceSquared < (circleRadius * circleRadius) + margin) {
+            return true; // Collision with an edge of the polygon detected
+        }
+    }
+
+    return false; // No collision detected
+}
+
+
+bool isCircleRobotCollision(const Eigen::Vector2d point, double radius, const std::vector<amp::Polygon> obstacles){
+    for(int i = 0; i < obstacles.size(); i++){
+        amp::Polygon obs = obstacles[i];
+
+        std::vector<Eigen::Vector2d> obs_points;
+
+        for(int j=0; j<obs.verticesCCW().size(); j++){
+            obs_points.push_back(obs.verticesCCW()[j]);
+        }
+
+        if(isCollisionWithConvexPolygon(point, radius, obs_points)){
+            return true;
+        }
+
+    }
+    return false;
+}
+
+///
+
+
 bool isPointCollision(const Eigen::Vector2d point, const std::vector<amp::Polygon> obstacles){
     for(int i = 0; i < obstacles.size(); i++){
         amp::Polygon obs = obstacles[i];
@@ -140,7 +203,23 @@ void log_vector(Eigen::VectorXd v){
     for(int i = 0; i < v.size(); i ++){
         std::cout << v[i] << " ";
         }
-    // std::cout << "\n";
+    std::cout << "\n";
+}
+
+void log_vector(std::vector<double> v){
+    std::cout << "vector: ";
+    for(int i = 0; i < v.size(); i ++){
+        std::cout << v[i] << " ";
+        }
+    std::cout << "\n";
+}
+
+void log_node_path(std::vector<int> node_path){
+    std::cout << "node path: ";
+    for(auto n : node_path){
+        std::cout << n << " ";
+    }
+    std::cout << "\n";
 }
 
 void write_x_traj(std::vector<Eigen::VectorXd>& data, std::string filename){
@@ -166,5 +245,26 @@ void write_x_traj(std::vector<Eigen::VectorXd>& data, std::string filename){
         // Close the file
         outputFile.close();
         std::cout << "Save file to: " << filename << "\n";
+    }
+}
+
+
+void writeListVectorToCSV(const std::list<std::vector<double>>& data, const std::string& filename) {
+    std::ofstream csvFile(filename);
+
+    if (csvFile.is_open()) {
+        for (const std::vector<double>& row : data) {
+            for (size_t i = 0; i < row.size(); ++i) {
+                csvFile << row[i];
+                if (i < row.size() - 1) {
+                    csvFile << ",";
+                }
+            }
+            csvFile << "\n";
+        }
+        csvFile.close();
+        std::cout << "Data has been written to " << filename << std::endl;
+    } else {
+        std::cerr << "Failed to open " << filename << " for writing." << std::endl;
     }
 }

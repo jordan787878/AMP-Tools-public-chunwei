@@ -101,6 +101,6 @@ int main(int argc, char** argv) {
     // MyAStarAlgo astar_algo;
     // amp::HW6::grade(point_wf_algo, manipulator_wf_algo, astar_algo, "chko1829@colorado.edu", argc, argv);
 
-    std::cout << "run complete";
+    std::cout << "run complete\n";
     return 0;
 }

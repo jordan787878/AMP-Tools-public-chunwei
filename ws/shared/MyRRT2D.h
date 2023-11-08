@@ -3,6 +3,7 @@
 #include "AMPCore.h"
 #include "Eigen/Dense"
 #include "MyFunctions.h"
+#include "hw/HW7.h"
 
 
 class MyRRT2D: public amp::GoalBiasRRT2D{

@@ -215,6 +215,15 @@ bool MyGridCSpace::isPointInConvexPolygon(const Eigen::Vector2d& point, const st
     return isInside;
 }
 
+Eigen::VectorXd vector_from_list(std::vector<double> list){
+    int d = list.size();
+    Eigen::VectorXd vector(d);
+    for(int i=0; i<d; i++){
+        vector[i] = list[i];
+    }
+    return vector;
+}
+
 
 //}
 
